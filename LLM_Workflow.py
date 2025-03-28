@@ -637,13 +637,76 @@ def comparative_workflow_evaluation(blog_post):
     
     return results
 
+def print_results(results):
+    """
+    Print the results of a workflow in a formatted way.
+    Args:
+        results: Dictionary with the workflow results
+    """
+    print("\nResults:")
+    for key, value in results.items():
+        if key == "key_points":
+            print("\nKey Points:")
+            for i, point in enumerate(value, 1):
+                print(f"{i}. {point}")
+        elif key == "summary":
+            print(f"\nSummary:\n{value}")
+        elif key == "social_posts":
+            print("\nSocial Media Posts:")
+            for platform, post in value.items():
+                print(f"\n{platform.upper()}:\n{post}")
+        elif key == "email":
+            print(f"\nEmail Newsletter:")
+            print(f"Subject: {value.get('subject', '')}")
+            print(f"Body:\n{value.get('body', '')}")
+        elif isinstance(value, dict):
+            print(f"\n{key.replace('_', ' ').title()}:")
+            for sub_key, sub_value in value.items():
+                print(f"{sub_key}: {sub_value}")
+        else:
+            print(f"\n{key.replace('_', ' ').title()}: {value}")
+
 def main():
-    # Load sample blog post
+    # Load the sample blog post
     blog_post = get_sample_blog_post()
+    if not blog_post:
+        print("Failed to load sample blog post.")
+        return
     
-    if blog_post:
-        # Run comparative workflow evaluation
-        comparative_workflow_evaluation(blog_post)
+    print(f"Loaded blog post: {blog_post['title']}")
+    
+    workflow_options = {
+        "1": ("Pipeline Workflow", run_pipeline_workflow),
+        "2": ("DAG Workflow", run_dag_workflow),
+        "3": ("Key Points Extraction with Chain-of-Thought", extract_key_points_with_cot),
+        "4": ("Workflow with Reflexion", run_workflow_with_reflexion),
+        "5": ("Agent-Driven Workflow", run_agent_workflow),
+        "6": ("Comparative Evaluation of Workflows", comparative_workflow_evaluation)
+    }
+    
+    while True:
+        print("\nLLM Workflow Options:")
+        for key, (desc, _) in workflow_options.items():
+            print(f"{key}. Run {desc}")
+        print("0. Exit")
+        
+        choice = input("Enter your choice (0-5): ")
+        
+        if choice == "0":
+            break
+        elif choice in workflow_options:
+            desc, func = workflow_options[choice]
+            print(f"\nRunning {desc}...\n")
+            results = func(blog_post)
+            if choice == "3":  # Special handling for Key Points Extraction
+                print("Key Points:")
+                for i, point in enumerate(results, 1):
+                    print(f"{i}. {point}")
+            else:
+                print_results(results)
+        else:
+            print("Invalid choice. Please try again.")
+
 
 if __name__ == "__main__":
     main()
