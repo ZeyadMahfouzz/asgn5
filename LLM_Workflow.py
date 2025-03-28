@@ -245,14 +245,14 @@ def run_pipeline_workflow(blog_post):
     
     # Create email newsletter
     print("Creating email newsletter...")
-    email = task_create_email_newsletter(blog_post, summary, key_points)
+    email_newsletter = task_create_email_newsletter(blog_post, summary, key_points)
     
     # Return all generated content
     return {
         "key_points": key_points,
         "summary": summary,
         "social_posts": social_posts,
-        "email": email
+        "email_newsletter": email_newsletter
     }
 
 # DAG Workflow
@@ -274,13 +274,13 @@ def run_dag_workflow(blog_post):
     
     # Create email newsletter (depends on blog_post, summary, and key_points)
     print("Creating email newsletter...")
-    email = task_create_email_newsletter(blog_post, summary, key_points)
+    email_newsletter = task_create_email_newsletter(blog_post, summary, key_points)
     
     return {
         "key_points": key_points,
         "summary": summary,
         "social_posts": social_posts,
-        "email": email
+        "email_newsletter": email_newsletter
     }
 
 def extract_key_points_with_cot(blog_post):
@@ -494,13 +494,13 @@ def run_workflow_with_reflexion(blog_post):
     
     # Create email newsletter with reflexion
     print("Creating email newsletter with reflexion...")
-    email = generate_with_reflexion(task_create_email_newsletter)(blog_post, summary, key_points, content_type="email")
+    email_newsletter = generate_with_reflexion(task_create_email_newsletter)(blog_post, summary, key_points, content_type="email")
     
     return {
         "key_points": key_points,
         "summary": summary,
         "social_posts": social_posts,
-        "email": email
+        "email_newsletter": email_newsletter
     }
 
 # Agent-Driven Workflow
@@ -655,7 +655,7 @@ def print_results(results):
             print("\nSocial Media Posts:")
             for platform, post in value.items():
                 print(f"\n{platform.upper()}:\n{post}")
-        elif key == "email":
+        elif key == "email_newsletter":
             print(f"\nEmail Newsletter:")
             print(f"Subject: {value.get('subject', '')}")
             print(f"Body:\n{value.get('body', '')}")
@@ -690,7 +690,7 @@ def main():
             print(f"{key}. Run {desc}")
         print("0. Exit")
         
-        choice = input("Enter your choice (0-5): ")
+        choice = input("Enter your choice (0-6): ")
         
         if choice == "0":
             break
