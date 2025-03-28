@@ -589,30 +589,74 @@ def run_agent_workflow(blog_post):
     tool_schemas = define_agent_tools()
     tools = list(tool_schemas.values())
     
-    results = {}
+    results = {
+        "key_points": [],
+        "summary": "",
+        "social_posts": {"twitter": "", "linkedin": "", "facebook": ""},
+        "email_newsletter": {"subject": "", "body": ""}
+    }
+    
     max_iterations = 10
+    finish_called = False
     
     for _ in range(max_iterations):
         response = call_llm(messages, tools)
-        messages.append(response.choices[0].message)
-        
-        if not response.choices[0].message.tool_calls:
+        if not response or not response.choices:
             break
+            
+        assistant_message = response.choices[0].message
+        messages.append(assistant_message)
         
-        for tool_call in response.choices[0].message.tool_calls:
+        if not assistant_message.tool_calls:
+            continue  # Don't break, keep processing
+            
+        for tool_call in assistant_message.tool_calls:
             tool_name = tool_call.function.name
             arguments = json.loads(tool_call.function.arguments)
             
-            if tool_name == "extract_key_points":
-                results["key_points"] = arguments.get("key_points", [])
-            elif tool_name == "generate_summary":
-                results["summary"] = arguments.get("summary", "")
-            elif tool_name == "create_social_media_posts":
-                results["social_posts"] = arguments
-            elif tool_name == "create_email_newsletter":
-                results["email_newsletter"] = arguments
+            if tool_name == "finish":
+                # Map finish tool output to final results
+                return {
+                    "key_points": results.get("key_points", []),
+                    "summary": arguments.get("summary", ""),
+                    "social_posts": arguments.get("social_posts", results["social_posts"]),
+                    "email_newsletter": {
+                        "subject": arguments.get("email", {}).get("subject", ""),
+                        "body": arguments.get("email", {}).get("body", "")
+                    }
+                }
+            else:
+                # Handle intermediate tools
+                if tool_name == "extract_key_points":
+                    results["key_points"] = arguments.get("key_points", [])
+                elif tool_name == "generate_summary":
+                    results["summary"] = arguments.get("summary", "")
+                elif tool_name == "create_social_media_posts":
+                    results["social_posts"] = {
+                        "twitter": arguments.get("twitter", ""),
+                        "linkedin": arguments.get("linkedin", ""),
+                        "facebook": arguments.get("facebook", "")
+                    }
+                elif tool_name == "create_email_newsletter":
+                    results["email_newsletter"] = {
+                        "subject": arguments.get("subject", ""),
+                        "body": arguments.get("body", "")
+                    }
+                
+                # Add tool response to messages
+                messages.append({
+                    "role": "tool",
+                    "content": f"Successfully executed {tool_name}",
+                    "tool_call_id": tool_call.id
+                })
     
-    return results
+    # Fallback return with collected results
+    return {
+        "key_points": results["key_points"],
+        "summary": results["summary"],
+        "social_posts": results["social_posts"],
+        "email_newsletter": results["email_newsletter"]
+    }
 
 # Bonus Challenge: Comparative Evaluation
 def comparative_workflow_evaluation(blog_post):
