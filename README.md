@@ -47,16 +47,6 @@ LLM Workflow Options:
 - **Data Output**: The results are formatted and displayed to the user.
 - **Error Handling**: Basic exception handling is included for robustness.
 
-## Example Outputs
-
-### Workflow Type 1: Direct Query Processing
-**Input:** "Explain machine learning in simple terms."  
-**Output:** "Machine learning is a field of AI that allows computers to learn patterns from data..."
-
-### Workflow Type 2: Summarization Task
-**Input:** Large paragraph about deep learning  
-**Output:** "Deep learning is a subset of machine learning that uses neural networks..."
-
 ## Effectiveness Analysis
 
 - **Direct Query Processing**: Provides fast and relevant responses but may lack depth.
