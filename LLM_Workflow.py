@@ -744,7 +744,7 @@ def main():
             desc, func = workflow_options[choice]
             print(f"\nRunning {desc}...\n")
             results = func(blog_post)
-            if choice == "3":  # Special handling for Key Points Extraction
+            if choice == "3":
                 print("Key Points:")
                 for i, point in enumerate(results, 1):
                     print(f"{i}. {point}")
