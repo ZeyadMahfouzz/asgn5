@@ -310,7 +310,7 @@ def extract_key_points_with_cot(blog_post):
         # Use tool_choice to ensure the model calls our function
         response = call_llm(
             messages=messages,
-            tools=[tool_schemas["extract_key_points_schema"]],
+            tools=[tool_schemas["extract_key_points"]],
             tool_choice={"type": "function", "function": {"name": "extract_key_points"}}
         )
         
@@ -620,6 +620,8 @@ def comparative_workflow_evaluation(blog_post):
     
     workflows = {
         "Pipeline Workflow": run_pipeline_workflow,
+        "DAG Workflow": run_dag_workflow,
+        "Key Points Extraction with Chain-of-Thought": extract_key_points_with_cot,
         "Reflexion Workflow": run_workflow_with_reflexion,
         "Agent-Driven Workflow": run_agent_workflow
     }
